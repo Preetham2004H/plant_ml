@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantCare AI - Plant Disease Detection with 99% Accuracy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            padding: 16px 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            padding: 12px 0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 32px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            font-size: 32px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #059669;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #059669;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white !important;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.4);
+        }
+
+        .nav-cta::after {
+            display: none;
+        }
+
+        .hero-section {
+            padding: 140px 0 100px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-section h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 28px;
+            color: #111827;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-section h1 .highlight {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-section p {
+            font-size: 1.3rem;
+            color: #4b5563;
+            margin-bottom: 48px;
+            line-height: 1.8;
+        }
+
+        .web-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3);
+        }
+
+        .web-cta:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(5, 150, 105, 0.4);
+        }
+
+        .web-cta i {
+            font-size: 1.3rem;
+        }
+
+        .hero-image-container {
+            margin-top: 60px;
+            position: relative;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin: 0 auto;
+            display: block;
+        }
+
+        .feature-section {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .feature-section:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .feature-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ecfdf5;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 20px;
+        }
+
+        .feature-section h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            color: #111827;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-section p {
+            font-size: 1.25rem;
+            color: #6b7280;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            padding: 80px 0;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 48px;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .disease-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        .disease-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .disease-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+            border-color: #059669;
+        }
+
+        .disease-card-header {
+            padding: 24px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .disease-icon {
+            width: 56px;
+            height: 56px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .disease-card-content {
+            padding: 24px;
+        }
+
+        .disease-card-content h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        .disease-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ecfdf5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #059669;
+            margin-top: 12px;
+        }
+
+        .plant-category {
+            margin-bottom: 48px;
+        }
+
+        .plant-category h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #059669;
+            display: inline-block;
+        }
+
+        .footer {
+            background: #111827;
+            color: white;
+            padding: 80px 0 30px;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        .footer-section h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #10b981;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 30px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: #1f2937;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: #10b981;
+            transform: translateY(-4px);
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3);
+            z-index: 999;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-4px);
+        }
+
+        #threejs-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 400px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-section h1 {
+                font-size: 3.5rem;
+            }
+            .feature-section h2 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+            .hero-section p {
+                font-size: 1.1rem;
+            }
+            .disease-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            #threejs-container {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+                PlantCare AI
+            </div>
+            <div class="nav-links">
+                <a href="#diseases"><i class="fas fa-microscope"></i> Diseases</a>
+                <a href="#about"><i class="fas fa-info-circle"></i> About Dataset</a>
+                <a href="/login" class="nav-cta"><i class="fas fa-sign-in-alt"></i> Get Started Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="hero-container">
+            <div id="threejs-container"></div>
+            <div class="hero-content fade-in-up">
+                <div class="hero-badge">
+                    <i class="fas fa-robot"></i>
+                    Trained on 87,000+ PlantVillage Images
+                </div>
+                <h1>
+                    Detect <span class="highlight">38 Plant Diseases</span><br>
+                    with 98% Accuracy
+                </h1>
+                <p>
+                    Our AI model is trained on the renowned PlantVillage dataset, covering 14 crop species
+                    and 38 disease classes. Upload a leaf photo for instant, accurate disease identification
+                    and expert treatment recommendations.
+                </p>
+                <a href="/detect" class="web-cta">
+                    <i class="fas fa-camera"></i>
+                    Start Detection - It's Free
+                </a>
+            </div>
+            <div class="hero-image-container">
+                <img src="https://www.researchgate.net/publication/351891150/figure/fig2/AS:1027911456931847@1622084597927/mages-of-38-different-normal-and-plant-diseases-leaves-of-standard-dataset-PlantVillage.jpg" alt="PlantVillage Dataset" class="hero-image">
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="feature-container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">
+                        <i class="fas fa-leaf"></i>
+                        38
+                    </div>
+                    <div class="stat-label">Disease Classes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">
+                        <i class="fas fa-seedling"></i>
+                        14
+                    </div>
+                    <div class="stat-label">Crop Species</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">
+                        <i class="fas fa-images"></i>
+                        87K+
+                    </div>
+                    <div class="stat-label">Training Images</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">
+                        <i class="fas fa-check-circle"></i>
+                        99%
+                    </div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="feature-section" id="diseases">
+        <div class="feature-container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-database"></i>
+                    PlantVillage Dataset
+                </div>
+                <h2>38 Plant Disease Classes We Detect</h2>
+                <p>
+                    Our model is trained on the comprehensive PlantVillage dataset with 87,000+ RGB images
+                    covering 14 crop species and 38 disease classifications including healthy plant samples.
+                </p>
+            </div>
+
+            <!-- Apple -->
+            <div class="plant-category">
+                <h3><i class="fas fa-apple-alt"></i> Apple (4 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍎</div>
+                            <div>
+                                <h3>Apple Scab</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Dark, olive-green or black lesions on leaves and fruit caused by Venturia inaequalis fungus.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍎</div>
+                            <div>
+                                <h3>Apple Black Rot</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Brown circular lesions with concentric rings on leaves and fruit. Caused by Botryosphaeria obtusa.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍎</div>
+                            <div>
+                                <h3>Apple Cedar Apple Rust</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Bright orange or yellow spots on leaves. Requires both apple and cedar trees to complete life cycle.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Apple Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Normal, disease-free apple plant with vibrant green leaves and no visible symptoms.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blueberry -->
+            <div class="plant-category">
+                <h3><i class="fas fa-circle"></i> Blueberry (1 class)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Blueberry Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy blueberry plant with normal leaf color and structure, no disease symptoms.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cherry -->
+            <div class="plant-category">
+                <h3><i class="fas fa-circle"></i> Cherry (2 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍒</div>
+                            <div>
+                                <h3>Cherry Powdery Mildew</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>White powdery coating on leaves and shoots caused by Podosphaera clandestina fungus.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Cherry Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Normal, disease-free cherry plant with healthy green foliage.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Corn/Maize -->
+            <div class="plant-category">
+                <h3><i class="fas fa-corn"></i> Corn/Maize (4 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🌽</div>
+                            <div>
+                                <h3>Corn Cercospora Leaf Spot</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Gray leaf spot disease causing rectangular gray lesions on corn leaves.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🌽</div>
+                            <div>
+                                <h3>Corn Common Rust</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Orange-brown pustules on leaves caused by Puccinia sorghi fungus.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🌽</div>
+                            <div>
+                                <h3>Corn Northern Leaf Blight</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Long, elliptical gray-green lesions on leaves caused by Exserohilum turcicum.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Corn Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy corn plant with vibrant green leaves, no disease symptoms.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grape -->
+            <div class="plant-category">
+                <h3><i class="fas fa-grapes"></i> Grape (4 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍇</div>
+                            <div>
+                                <h3>Grape Black Rot</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Dark brown circular lesions on leaves and fruit, caused by Guignardia bidwellii.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍇</div>
+                            <div>
+                                <h3>Grape Esca (Black Measles)</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Tiger-stripe pattern on leaves, internal wood decay. Complex fungal disease.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍇</div>
+                            <div>
+                                <h3>Grape Leaf Blight</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Isariopsis leaf spot causing brown angular lesions on grape leaves.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Grape Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy grape vine with normal green foliage and no disease symptoms.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orange -->
+            <div class="plant-category">
+                <h3><i class="fas fa-circle"></i> Orange (1 class)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍊</div>
+                            <div>
+                                <h3>Orange Huanglongbing</h3>
+                                <div class="disease-badge"><i class="fas fa-bacteria"></i> Bacterial</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Citrus greening disease causing yellow shoots, asymmetrical mottling. Devastating disease.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Peach -->
+            <div class="plant-category">
+                <h3><i class="fas fa-circle"></i> Peach (2 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍑</div>
+                            <div>
+                                <h3>Peach Bacterial Spot</h3>
+                                <div class="disease-badge"><i class="fas fa-bacteria"></i> Bacterial</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Dark spots on leaves and fruit caused by Xanthomonas campestris bacteria.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Peach Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Normal, disease-free peach tree with healthy green leaves.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pepper Bell -->
+            <div class="plant-category">
+                <h3><i class="fas fa-pepper-hot"></i> Bell Pepper (2 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🌶️</div>
+                            <div>
+                                <h3>Pepper Bell Bacterial Spot</h3>
+                                <div class="disease-badge"><i class="fas fa-bacteria"></i> Bacterial</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Dark brown spots with yellow halos on leaves and fruit. Caused by Xanthomonas bacteria.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Pepper Bell Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy bell pepper plant with normal green foliage and no disease signs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Potato -->
+            <div class="plant-category">
+                <h3><i class="fas fa-potato"></i> Potato (3 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🥔</div>
+                            <div>
+                                <h3>Potato Early Blight</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Dark brown spots with concentric rings on older leaves. Caused by Alternaria solani.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🥔</div>
+                            <div>
+                                <h3>Potato Late Blight</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Water-soaked lesions turning brown-black on leaves. Caused Irish potato famine.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Potato Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy potato plant with normal green foliage and vigorous growth.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raspberry -->
+            <div class="plant-category">
+                <h3><i class="fas fa-circle"></i> Raspberry (1 class)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Raspberry Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Normal, disease-free raspberry plant with healthy green leaves.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Soybean -->
+            <div class="plant-category">
+                <h3><i class="fas fa-seedling"></i> Soybean (1 class)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Soybean Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy soybean plant with normal trifoliate leaves and no disease symptoms.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Squash -->
+            <div class="plant-category">
+                <h3><i class="fas fa-circle"></i> Squash (1 class)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🎃</div>
+                            <div>
+                                <h3>Squash Powdery Mildew</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>White powdery fungal growth on leaves and stems. Common in cucurbit crops.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strawberry -->
+            <div class="plant-category">
+                <h3><i class="fas fa-strawberry"></i> Strawberry (2 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍓</div>
+                            <div>
+                                <h3>Strawberry Leaf Scorch</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Purple spots on leaves leading to browning and scorched appearance.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Strawberry Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy strawberry plant with normal green trifoliate leaves.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tomato -->
+            <div class="plant-category">
+                <h3><i class="fas fa-tomato"></i> Tomato (10 classes)</h3>
+                <div class="disease-grid">
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Bacterial Spot</h3>
+                                <div class="disease-badge"><i class="fas fa-bacteria"></i> Bacterial</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Dark brown spots with yellow halos on leaves and fruit. Xanthomonas bacteria.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Early Blight</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Concentric ring pattern (target spot) on older leaves. Alternaria solani fungus.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Late Blight</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Water-soaked lesions turning brown. Same pathogen that caused Irish famine.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Leaf Mold</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Pale green or yellow spots on upper leaf surface, olive-green mold below.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Septoria Leaf Spot</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Small circular spots with dark borders and tan centers. Affects lower leaves first.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Spider Mites</h3>
+                                <div class="disease-badge"><i class="fas fa-spider"></i> Pest</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Two-spotted spider mite damage causing stippling, yellowing, and webbing on leaves.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Target Spot</h3>
+                                <div class="disease-badge"><i class="fas fa-bug"></i> Fungal</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Brown spots with concentric rings on leaves. Caused by Corynespora cassiicola.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Yellow Leaf Curl Virus</h3>
+                                <div class="disease-badge"><i class="fas fa-virus"></i> Viral</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Upward curling and yellowing of leaves, stunted growth. Spread by whiteflies.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">🍅</div>
+                            <div>
+                                <h3>Tomato Mosaic Virus</h3>
+                                <div class="disease-badge"><i class="fas fa-virus"></i> Viral</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Mosaic pattern of light and dark green on leaves, leaf distortion and reduced yield.</p>
+                        </div>
+                    </div>
+                    <div class="disease-card">
+                        <div class="disease-card-header">
+                            <div class="disease-icon">✅</div>
+                            <div>
+                                <h3>Tomato Healthy</h3>
+                                <div class="disease-badge"><i class="fas fa-check"></i> Healthy</div>
+                            </div>
+                        </div>
+                        <div class="disease-card-content">
+                            <p>Healthy tomato plant with vibrant green foliage and normal growth pattern.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="feature-section" id="about" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);">
+        <div class="feature-container" style="text-align: center;">
+            <div class="section-badge">
+                <i class="fas fa-rocket"></i>
+                Ready to Protect Your Plants?
+            </div>
+            <h2>Start Detecting Diseases Now</h2>
+            <p style="max-width: 600px; margin: 0 auto 40px;">
+                Upload a photo of your plant's leaf and get instant disease identification from our
+                AI trained on 87,000+ images covering 38 disease classes with 99% accuracy.
+            </p>
+            <a href="/detect" class="web-cta">
+                <i class="fas fa-camera"></i>
+                Start Free Detection
+            </a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4><i class="fas fa-seedling"></i> PlantCare AI</h4>
+                    <p style="color: #9ca3af; margin-top: 12px;">
+                        Advanced AI-powered plant disease detection using the PlantVillage dataset.
+                        Helping farmers and gardeners protect their crops worldwide.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-camera"></i> Disease Detection</a></li>
+                        <li><a href="#"><i class="fas fa-leaf"></i> 38 Disease Classes</a></li>
+                        <li><a href="#"><i class="fas fa-seedling"></i> 14 Crop Species</a></li>
+                        <li><a href="#"><i class="fas fa-chart-line"></i> 99% Accuracy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-database"></i> PlantVillage Dataset</a></li>
+                        <li><a href="#"><i class="fas fa-book"></i> Documentation</a></li>
+                        <li><a href="#"><i class="fas fa-code"></i> API Access</a></li>
+                        <li><a href="#"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-info-circle"></i> About Us</a></li>
+                        <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>
+                    © 2025 PlantCare AI. All rights reserved. Built with PlantVillage Dataset. Made with <i class="fas fa-heart" style="color: #ef4444;"></i> for agriculture.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="scroll-top" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        const container = document.getElementById('threejs-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const stemGeometry = new THREE.CylinderGeometry(0.1, 0.15, 2.5, 32);
+        const stemMaterial = new THREE.MeshPhongMaterial({ color: 0x2d5016, shininess: 30 });
+        const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+        scene.add(stem);
+
+        const leafGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+        const leafMaterial = new THREE.MeshPhongMaterial({ color: 0x4ade80, shininess: 50 });
+
+        for (let i = 0; i < 5; i++) {
+            const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+            const angle = (Math.PI * 2 * i) / 5;
+            const radius = 0.6;
+            leaf.position.set(
+                Math.cos(angle) * radius,
+                1 + (i * 0.3),
+                Math.sin(angle) * radius
+            );
+            leaf.scale.set(1, 0.5, 1);
+            scene.add(leaf);
+        }
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 0.8);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        camera.position.z = 5;
+        camera.position.y = 1;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            stem.rotation.y += 0.005;
+            scene.children.forEach(child => {
+                if (child.geometry instanceof THREE.SphereGeometry) {
+                    child.rotation.y += 0.01;
+                    child.position.y += Math.sin(Date.now() * 0.001) * 0.0005;
+                }
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            const scrollBtn = document.querySelector('.scroll-top');
+            if (window.scrollY > 300) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Sign Up - PlantCare AI</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            position: relative;
+            width: 1200px;
+            height: 700px;
+            background: #fff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .sign-in-container {
+            left: 0;
+            width: 50%;
+            z-index: 2;
+        }
+
+        .sign-up-container {
+            left: 0;
+            width: 50%;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .main-container.right-panel-active .sign-in-container {
+            transform: translateX(100%);
+        }
+
+        .main-container.right-panel-active .sign-up-container {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+            animation: show 0.6s;
+        }
+
+        @keyframes show {
+            0%, 49.99% {
+                opacity: 0;
+                z-index: 1;
+            }
+            50%, 100% {
+                opacity: 1;
+                z-index: 5;
+            }
+        }
+
+        .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.6s ease-in-out;
+            z-index: 100;
+        }
+
+        .main-container.right-panel-active .overlay-container {
+            transform: translateX(-100%);
+        }
+
+        .overlay {
+            background: linear-gradient(135deg, #56ab2f, #a8e063);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: 0 0;
+            color: #fff;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .main-container.right-panel-active .overlay {
+            transform: translateX(50%);
+        }
+
+        .overlay-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 60px;
+            text-align: center;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+        .main-container.right-panel-active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .overlay-right {
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .main-container.right-panel-active .overlay-right {
+            transform: translateX(20%);
+        }
+
+        .auth-form {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 60px;
+            height: 100%;
+            text-align: center;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #56ab2f;
+            font-weight: 700;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .auth-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .social-container {
+            margin: 20px 0;
+        }
+
+        .social-btn {
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 8px;
+            height: 50px;
+            width: 50px;
+            transition: all 0.3s;
+            color: #666;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .social-btn:hover {
+            border-color: #56ab2f;
+            color: #56ab2f;
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #56ab2f;
+            box-shadow: 0 0 0 0.2rem rgba(86, 171, 47, 0.25);
+            background: #fff;
+        }
+
+        .btn-auth {
+            border-radius: 25px;
+            border: 2px solid #56ab2f;
+            background: linear-gradient(135deg, #56ab2f, #a8e063);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 15px 50px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(86, 171, 47, 0.3);
+        }
+
+        .btn-auth:active {
+            transform: translateY(0);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .overlay-panel h1 {
+            color: #fff;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .overlay-panel p {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 24px;
+            letter-spacing: 0.5px;
+            margin: 20px 0 30px;
+            opacity: 0.9;
+        }
+
+        .alert {
+            margin: 15px 0;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .forgot-password {
+            color: #56ab2f;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 15px 0;
+            transition: all 0.3s;
+        }
+
+        .forgot-password:hover {
+            color: #47962b;
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                width: 95%;
+                max-width: 1000px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main-container {
+                height: 600px;
+            }
+
+            .auth-form {
+                padding: 40px;
+            }
+
+            .logo-text {
+                font-size: 28px;
+            }
+
+            .auth-title {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .sign-in-container, .sign-up-container {
+                width: 100%;
+            }
+
+            .overlay-container {
+                display: none;
+            }
+
+            .auth-form {
+                padding: 30px;
+            }
+
+            .logo-text {
+                font-size: 24px;
+            }
+
+            .auth-title {
+                font-size: 22px;
+            }
+        }
+
+        /* Loading state */
+        .btn-auth:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-auth.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-auth.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container" id="container">
+        <!-- Sign Up Form -->
+        <div class="form-container sign-up-container">
+            <form class="auth-form" id="signupForm">
+                <div class="logo-text">🌱 PlantCare AI</div>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join thousands of farmers using smart agriculture</p>
+
+                <div class="social-container">
+                    <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-google"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-linkedin"></i></a>
+                </div>
+
+                <p class="text-muted mb-4">or use your email for registration</p>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="signup-name" placeholder="Full Name" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="email" class="form-control" id="signup-email" placeholder="Email Address" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" class="form-control" id="signup-password" placeholder="Create Password" required>
+                </div>
+
+                <div id="signup-message"></div>
+
+                <button type="submit" class="btn btn-auth">Create Account</button>
+            </form>
+        </div>
+
+        <!-- Sign In Form -->
+        <div class="form-container sign-in-container">
+            <form class="auth-form" id="loginForm">
+                <div class="logo-text">🌱 PlantCare AI</div>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to continue your plant care journey</p>
+
+                <div class="social-container">
+                    <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-google"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-linkedin"></i></a>
+                </div>
+
+                <p class="text-muted mb-4">or use your account credentials</p>
+
+                <div class="form-group">
+                    <input type="email" class="form-control" id="login-email" placeholder="Email Address" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" class="form-control" id="login-password" placeholder="Password" required>
+                </div>
+
+                <a href="#" class="forgot-password">Forgot your password?</a>
+
+                <div id="login-message"></div>
+
+                <button type="submit" class="btn btn-auth">Sign In</button>
+            </form>
+        </div>
+
+        <!-- Overlay -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>To keep connected with us please login with your personal information and continue your smart farming journey</p>
+                    <button class="btn btn-ghost" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Farmer!</h1>
+                    <p>Enter your personal details and start your journey with smart agriculture and AI-powered plant care</p>
+                    <button class="btn btn-ghost" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        // Panel switching
+        signUpButton.addEventListener('click', () => {
+            container.classList.add('right-panel-active');
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove('right-panel-active');
+        });
+
+        // Show message function
+        function showMessage(elementId, message, isSuccess = true) {
+            const messageDiv = document.getElementById(elementId);
+            messageDiv.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'}`;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+        }
+
+        // Hide message function
+        function hideMessage(elementId) {
+            const messageDiv = document.getElementById(elementId);
+            messageDiv.style.display = 'none';
+        }
+
+        // Loading state functions
+        function setLoadingState(buttonId, isLoading) {
+            const button = document.querySelector(`#${buttonId.replace('-', '')}Form button[type="submit"]`);
+            if (isLoading) {
+                button.disabled = true;
+                button.classList.add('loading');
+            } else {
+                button.disabled = false;
+                button.classList.remove('loading');
+            }
+        }
+
+        // Sign Up Form
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+
+            // Basic validation
+            if (!name || !email || !password) {
+                showMessage('signup-message', 'Please fill in all fields.', false);
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('signup-message', 'Password must be at least 6 characters long.', false);
+                return;
+            }
+
+            setLoadingState('signup', true);
+            hideMessage('signup-message');
+
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, email, password})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('signup-message', 'Account created successfully! Switching to login...', true);
+                    setTimeout(() => {
+                        container.classList.remove('right-panel-active');
+                        hideMessage('signup-message');
+                        document.getElementById('signupForm').reset();
+                        // Pre-fill email in login form
+                        document.getElementById('login-email').value = email;
+                    }, 2000);
+                } else {
+                    showMessage('signup-message', data.message || 'Registration failed. Please try again.', false);
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showMessage('signup-message', 'Network error. Please check your connection and try again.', false);
+            } finally {
+                setLoadingState('signup', false);
+            }
+        });
+
+        // Login Form
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            // Basic validation
+            if (!email || !password) {
+                showMessage('login-message', 'Please enter both email and password.', false);
+                return;
+            }
+
+            setLoadingState('login', true);
+            hideMessage('login-message');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('login-message', 'Login successful! Redirecting to dashboard...', true);
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    showMessage('login-message', data.message || 'Login failed. Please check your credentials.', false);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('login-message', 'Network error. Please check your connection and try again.', false);
+            } finally {
+                setLoadingState('login', false);
+            }
+        });
+
+        // Clear messages when switching panels
+        signUpButton.addEventListener('click', () => {
+            hideMessage('login-message');
+        });
+
+        signInButton.addEventListener('click', () => {
+            hideMessage('signup-message');
+        });
+    </script>
+</body>
+</html>

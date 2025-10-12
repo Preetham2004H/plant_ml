@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantCare AI - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #6366f1;
+            --accent-hover: #5558e3;
+            --border: #1f1f1f;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .navbar.scrolled {
+            padding: 1rem 0;
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary) !important;
+            letter-spacing: -0.03em;
+            transition: opacity 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            opacity: 0.7;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 1.25rem !important;
+            transition: color 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary) !important;
+        }
+
+        .btn-nav {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 0.625rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: -0.01em;
+        }
+
+        .btn-nav:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg-gradient {
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to bottom, #ffffff 60%, #808080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.35rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            animation: floatImage 6s ease-in-out infinite;
+            filter: drop-shadow(0 20px 60px rgba(99, 102, 241, 0.3));
+        }
+
+        @keyframes floatImage {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-custom {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 1.125rem 2.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: -0.01em;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 1.125rem 2.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: -0.01em;
+        }
+
+        .btn-secondary-custom:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .stat-number {
+            font-size: clamp(3rem, 5vw, 5rem);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            background: linear-gradient(to bottom, #ffffff 40%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 120px 0;
+        }
+
+        .section-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 4rem;
+            max-width: 800px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .feature-card:hover {
+            background: rgba(17, 17, 17, 0.8);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .feature-image {
+            width: 100%;
+            max-width: 200px;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 10px 30px rgba(99, 102, 241, 0.2));
+        }
+
+        .feature-card:hover .feature-image {
+            transform: scale(1.05) translateY(-5px);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            letter-spacing: -0.01em;
+        }
+
+        .feature-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: gap 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .feature-link:hover {
+            gap: 1rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+            filter: blur(100px);
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .cta-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 3rem;
+            animation: floatImage 6s ease-in-out infinite;
+            filter: drop-shadow(0 20px 60px rgba(99, 102, 241, 0.3));
+        }
+
+        .cta-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        /* Animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .delay-6 { animation-delay: 0.6s; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 100px 0 60px;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .btn-primary-custom,
+            .btn-secondary-custom {
+                width: 100%;
+                text-align: center;
+            }
+
+            .hero-image,
+            .cta-image {
+                max-width: 300px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">PlantCare AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: 1px solid var(--border);">
+                <i class="bi bi-list" style="color: white; font-size: 1.5rem;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/weather">Weather</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/detect">Detect</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/model-info">Model</a>
+                    </li>
+                    <li class="nav-item">
+                        <button onclick="logout()" class="btn btn-nav ms-3">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg-gradient"></div>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title fade-in-up">
+                        Protect Your Crops<br>
+                        with AI Intelligence
+                    </h1>
+                    <p class="hero-subtitle fade-in-up delay-1">
+                        Advanced deep learning technology to identify and treat plant diseases instantly with 98% accuracy across 38 disease classes.
+                    </p>
+                    <div class="hero-cta fade-in-up delay-2">
+                        <a href="/detect" class="btn btn-primary-custom">
+                            Start Detection
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                        <a href="/model-info" class="btn btn-secondary-custom">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center fade-in-up delay-3">
+                    <!-- HERO IMAGE - Replace with your image -->
+                    <img src="./static/images/Plant Nursery.png" alt="Plant AI Detection" class="hero-image">
+                    <!-- Alternative local path: -->
+                    <!-- <img src="/static/images/hero-plant.png" alt="Plant AI Detection" class="hero-image"> -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-6 col-md-3 fade-in-up delay-1">
+                    <div class="stat-item">
+                        <span class="stat-number">98%</span>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 fade-in-up delay-2">
+                    <div class="stat-item">
+                        <span class="stat-number">38</span>
+                        <div class="stat-label">Diseases</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 fade-in-up delay-3">
+                    <div class="stat-item">
+                        <span class="stat-number">14</span>
+                        <div class="stat-label">Crop Types</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 fade-in-up delay-4">
+                    <div class="stat-item">
+                        <span class="stat-number">7</span>
+                        <div class="stat-label">Languages</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-label fade-in-up">CORE FEATURES</div>
+            <h2 class="section-title fade-in-up delay-1">
+                Everything you need to protect your agricultural investments
+            </h2>
+
+            <div class="features-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card fade-in-up delay-2">
+                    <!-- AI Detection Image -->
+                    <img src="plant-disease-app/static/images/Plant Nursery.png" alt="AI Detection" class="feature-image">
+                    <!-- Local: <img src="/static/images/ai-detection.png" alt="AI Detection" class="feature-image"> -->
+
+                    <h3 class="feature-title">AI-Powered Detection</h3>
+                    <p class="feature-description">
+                        Upload plant images for instant disease identification using our DenseNet201 deep learning architecture with industry-leading accuracy.
+                    </p>
+                    <a href="/detect" class="feature-link">
+                        Try Detection
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card fade-in-up delay-3">
+                    <!-- Weather Image -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/weather-forecast-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--cloud-sun-rain-climate-pack-nature-illustrations-4393518.png?f=webp" alt="Weather Intelligence" class="feature-image">
+                    <!-- Local: <img src="/static/images/weather.png" alt="Weather" class="feature-image"> -->
+
+                    <h3 class="feature-title">Weather Intelligence</h3>
+                    <p class="feature-description">
+                        Real-time weather monitoring and 7-day forecasts with personalized crop recommendations based on your location and conditions.
+                    </p>
+                    <a href="/weather" class="feature-link">
+                        Check Weather
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card fade-in-up delay-4">
+                    <!-- Data Analytics Image -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/data-analysis-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--analytics-chart-graph-statistics-business-pack-illustrations-4731843.png?f=webp" alt="Model Insights" class="feature-image">
+                    <!-- Local: <img src="/static/images/analytics.png" alt="Analytics" class="feature-image"> -->
+
+                    <h3 class="feature-title">Model Insights</h3>
+                    <p class="feature-description">
+                        Deep dive into our neural network architecture, training methodology, and performance metrics across all supported crop types.
+                    </p>
+                    <a href="/model-info" class="feature-link">
+                        View Details
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card fade-in-up delay-5">
+                    <!-- Crops Image -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/plants-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--plant-pot-gardening-nature-pack-illustrations-4731829.png?f=webp" alt="Multi-Crop Support" class="feature-image">
+                    <!-- Local: <img src="/static/images/crops.png" alt="Crops" class="feature-image"> -->
+
+                    <h3 class="feature-title">Multi-Crop Support</h3>
+                    <p class="feature-description">
+                        Comprehensive coverage of 14 major crop types including Tomato, Potato, Corn, Apple, Grape, and more with specialized disease detection.
+                    </p>
+                    <a href="/model-info" class="feature-link">
+                        View Crops
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feature-card fade-in-up delay-6">
+                    <!-- Language Image -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/translation-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--language-multilingual-dictionary-communication-pack-illustrations-4731851.png?f=webp" alt="Multi-Language" class="feature-image">
+                    <!-- Local: <img src="/static/images/language.png" alt="Language" class="feature-image"> -->
+
+                    <h3 class="feature-title">Multi-Language</h3>
+                    <p class="feature-description">
+                        Get disease detection results and treatment recommendations in 7 languages including regional support for Kannada and more.
+                    </p>
+                    <a href="/detect" class="feature-link">
+                        Explore Languages
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card fade-in-up delay-6">
+                    <!-- Speed/Camera Image -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/camera-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--photo-photography-picture-device-pack-electronics-illustrations-4731848.png?f=webp" alt="Instant Analysis" class="feature-image">
+                    <!-- Local: <img src="/static/images/camera.png" alt="Camera" class="feature-image"> -->
+
+                    <h3 class="feature-title">Instant Analysis</h3>
+                    <p class="feature-description">
+                        Get disease identification and treatment recommendations in under 2 seconds with our optimized inference pipeline and cloud infrastructure.
+                    </p>
+                    <a href="/detect" class="feature-link">
+                        Start Now
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-bg"></div>
+        <div class="container">
+            <div class="cta-content">
+                <!-- CTA Image -->
+                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/agriculture-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--farming-crop-field-farm-nature-pack-illustrations-4731833.png?f=webp" alt="Agriculture" class="cta-image fade-in-up">
+                <!-- Local: <img src="/static/images/agriculture.png" alt="Agriculture" class="cta-image fade-in-up"> -->
+
+                <h2 class="cta-title fade-in-up delay-1">
+                    Ready to protect your crops?
+                </h2>
+                <p class="cta-subtitle fade-in-up delay-2">
+                    Join thousands of farmers using PlantCare AI for intelligent disease management and crop protection.
+                </p>
+                <div class="hero-cta fade-in-up delay-3" style="justify-content: center;">
+                    <a href="/detect" class="btn btn-primary-custom">
+                        Get Started
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                    <a href="/model-info" class="btn btn-secondary-custom">
+                        View Documentation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+
+        // Logout function
+        function logout() {
+            fetch('/api/logout', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/';
+                    }
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    window.location.href = '/';
+                });
+        }
+    </script>
+</body>
+</html>

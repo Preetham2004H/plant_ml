@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Detection - PlantCare AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: #161b22;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand, .nav-link {
+            color: #c9d1d9 !important;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #58a6ff !important;
+            transform: scale(1.05);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #238636 0%, #1a202c 100%);
+            color: #c9d1d9;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #238636;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparentpng.com/thumb/leaf/green-leaf-transparent-background-6.png') repeat;
+            opacity: 0.1;
+            animation: leaf-float 20s linear infinite;
+        }
+
+        @keyframes leaf-float {
+            0% { background-position: 0 0; }
+            100% { background-position: 200px 200px; }
+        }
+
+        .detection-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+            margin-bottom: 3rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detection-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 16px 48px rgba(88, 166, 255, 0.3);
+        }
+
+        .detection-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(88, 166, 255, 0.2) 0%, transparent 70%);
+            transform: rotate(45deg);
+            z-index: -1;
+            animation: pulse 10s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+            100% { opacity: 0.3; }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            opacity: 0.7;
+            transition: all 0.4s ease;
+        }
+
+        .step.active {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #238636, #58a6ff);
+            color: #c9d1d9;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .step:hover .step-number {
+            transform: rotate(360deg);
+        }
+
+        .step-divider {
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, #30363d, #58a6ff);
+            margin: 0 2rem;
+        }
+
+        .image-source-toggle {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .source-btn {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #30363d;
+            background: #21262d;
+            border-radius: 12px;
+            color: #c9d1d9;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .source-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.4);
+            border-color: #58a6ff;
+            background: #1a202c;
+        }
+
+        .source-btn.active {
+            border-color: #238636;
+            background: linear-gradient(135deg, #238636, #1a202c);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.4);
+            color: #ffffff;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 3rem;
+            border: 2px dashed #238636;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: #21262d;
+            color: #c9d1d9;
+        }
+
+        .file-input-label:hover {
+            border-color: #58a6ff;
+            background: #1a202c;
+            transform: scale(1.03);
+        }
+
+        .file-input-label input {
+            display: none;
+        }
+
+        .camera-container {
+            text-align: center;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .image-preview {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .image-preview img {
+            max-width: 400px;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s ease;
+        }
+
+        .image-preview img:hover {
+            transform: scale(1.1);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 6px solid #30363d;
+            border-top: 6px solid #238636;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-display {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #238636, #58a6ff);
+            border: none;
+            border-radius: 35px;
+            padding: 16px 40px;
+            color: #ffffff;
+            transition: all 0.4s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.5);
+            background: linear-gradient(135deg, #58a6ff, #238636);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            border: none;
+            border-radius: 35px;
+            padding: 14px 30px;
+            color: #c9d1d9;
+            transition: all 0.4s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(108, 117, 125, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #238636, #28a745);
+            border: none;
+            border-radius: 35px;
+            padding: 14px 30px;
+            color: #ffffff;
+            transition: all 0.4s ease;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(35, 134, 54, 0.5);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f1b44c, #ff8a00);
+            border: none;
+            border-radius: 35px;
+            padding: 14px 30px;
+            color: #ffffff;
+            transition: all 0.4s ease;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(241, 180, 76, 0.5);
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            background: #21262d;
+            color: #c9d1d9;
+            padding: 14px 20px;
+            transition: all 0.4s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 0.3rem rgba(88, 166, 255, 0.3);
+            background: #21262d;
+            color: #c9d1d9;
+        }
+
+        .info-box {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .download-section {
+            border-top: 4px solid #30363d;
+            padding-top: 2.5rem;
+            margin-top: 2.5rem;
+            background: #161b22;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .download-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .download-header h5 {
+            color: #c9d1d9;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .download-header p {
+            color: #8b949e;
+            font-size: 1.1rem;
+        }
+
+        .download-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .download-card {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 15px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .download-card:hover {
+            border-color: #58a6ff;
+            transform: translateY(-10px);
+            box-shadow: 0 12px 36px rgba(88, 166, 255, 0.4);
+        }
+
+        .download-icon {
+            font-size: 3rem;
+            color: #238636;
+            margin-bottom: 1.5rem;
+            transition: transform 0.4s ease;
+        }
+
+        .download-card:hover .download-icon {
+            transform: rotate(360deg);
+        }
+
+        .download-title {
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: #c9d1d9;
+        }
+
+        .download-desc {
+            font-size: 1rem;
+            color: #8b949e;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-download {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 30px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            transition: all 0.4s ease;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .disease-info-section {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-top: 1.5rem;
+            border-left: 6px solid #238636;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .precaution-section {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-top: 1.5rem;
+            border-left: 6px solid #f1b44c;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .treatment-section {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-top: 1.5rem;
+            border-left: 6px solid #58a6ff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: #c9d1d9;
+        }
+
+        .diagnosis-highlight {
+            background: #161b22;
+            border-left: 6px solid #58a6ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .symptoms-section {
+            background: #161b22;
+            border-left: 6px solid #f1b44c;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .prevention-section {
+            background: #161b22;
+            border-left: 6px solid #238636;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .treatment-section-gemini {
+            background: #161b22;
+            border-left: 6px solid #f85149;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .info-section {
+            background: #161b22;
+            border-left: 6px solid #6c757d;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        #threejs-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 400px;
+            height: 400px;
+            opacity: 0.5;
+            pointer-events: none;
+            transform: rotate(15deg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg animate__animated animate__fadeInDown">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">🌱 PlantCare AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/weather">Weather & Crops</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/detect">Disease Detection</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/model-info">About Model</a></li>
+                    <li class="nav-item"><button onclick="logout()" class="btn btn-outline-light ms-2">Logout</button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header animate__animated animate__zoomIn">
+        <div class="container position-relative">
+            <h1><i class="bi bi-search"></i> Plant Disease Detection</h1>
+            <p>Upload plant images for AI-powered disease identification</p>
+            <div id="threejs-container"></div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="detection-card animate__animated animate__fadeInUp">
+                    <!-- Step Indicator -->
+                    <div class="step-indicator animate__animated animate__fadeIn">
+                        <div class="step active" id="step1-indicator">
+                            <span class="step-number">1</span>
+                            <span class="step-label">Select Plant</span>
+                        </div>
+                        <div class="step-divider"></div>
+                        <div class="step" id="step2-indicator">
+                            <span class="step-number">2</span>
+                            <span class="step-label">Upload Image</span>
+                        </div>
+                        <div class="step-divider"></div>
+                        <div class="step" id="step3-indicator">
+                            <span class="step-number">3</span>
+                            <span class="step-label">Get Results</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Plant Selection -->
+                    <div class="mb-4 animate__animated animate__fadeInLeft">
+                        <label for="plantSelect" class="form-label h5">
+                            <i class="bi bi-leaf"></i> Step 1: Select Your Plant Type
+                        </label>
+                        <select class="form-select" id="plantSelect" onchange="plantSelected()">
+                            <option value="">-- Choose Plant Type --</option>
+                            {% for plant in plants %}
+                            <option value="{{ plant }}">{{ plant }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Step 2: Image Upload -->
+                    <div class="mb-4" id="imageUploadSection" style="opacity: 0.5; pointer-events: none;">
+                        <label class="form-label h5">
+                            <i class="bi bi-camera"></i> Step 2: Choose Plant Leaf Image
+                        </label>
+
+                        <!-- Image Source Toggle -->
+                        <div class="image-source-toggle animate__animated animate__fadeInRight">
+                            <button type="button" class="source-btn active" id="uploadBtn" onclick="switchToUpload()">
+                                <i class="bi bi-upload"></i> Upload Image
+                            </button>
+                            <button type="button" class="source-btn" id="cameraBtn" onclick="switchToCamera()">
+                                <i class="bi bi-camera"></i> Use Camera
+                            </button>
+                        </div>
+
+                        <!-- File Upload Option -->
+                        <div id="uploadOption" class="image-option">
+                            <label class="file-input-label animate__animated animate__pulse">
+                                <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)" disabled>
+                                <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #238636;"></i>
+                                <div class="mt-2">
+                                    <strong>Choose from Device</strong>
+                                    <br><small class="text-muted">Click here or drag and drop</small>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Camera Capture Option -->
+                        <div id="cameraOption" class="image-option" style="display: none;">
+                            <div class="camera-container">
+                                <video id="cameraVideo" autoplay playsinline style="display: none;"></video>
+                                <canvas id="cameraCanvas" style="display: none;"></canvas>
+                                <div class="camera-controls">
+                                    <button type="button" class="btn btn-primary animate__animated animate__bounceIn" id="startCameraBtn" onclick="startCamera()">
+                                        <i class="bi bi-camera-video"></i> Start Camera
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="captureBtn" onclick="captureImage()" style="display: none;">
+                                        <i class="bi bi-camera"></i> Capture Photo
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="stopCameraBtn" onclick="stopCamera()" style="display: none;">
+                                        <i class="bi bi-stop-circle"></i> Stop Camera
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Language Selection -->
+                    <div class="mb-4 animate__animated animate__fadeInLeft">
+                        <label for="languageSelect" class="form-label h5">
+                            <i class="bi bi-translate"></i> Select Language for Results
+                        </label>
+                        <select class="form-select" id="languageSelect">
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi (हिंदी)</option>
+                            <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
+                            <option value="Tamil">Tamil (தமிழ்)</option>
+                            <option value="Telugu">Telugu (తెలుగు)</option>
+                            <option value="Marathi">Marathi (मराठी)</option>
+                            <option value="Bengali">Bengali (বাংলা)</option>
+                        </select>
+                    </div>
+
+                    <!-- Detect Button -->
+                    <button onclick="detectDisease()" class="btn btn-primary w-100 mb-4 animate__animated animate__pulse" id="detectBtn" disabled>
+                        <i class="bi bi-search"></i> Step 3: Detect Disease
+                    </button>
+
+                    <!-- Selected Plant Info -->
+                    <div id="selectedPlantInfo" class="info-box" style="display: none;"></div>
+
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="image-preview"></div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Analyzing <span id="analyzingPlant"></span> leaf image...</p>
+                    </div>
+
+                    <!-- Results Display -->
+                    <div id="resultDisplay" class="result-display" style="display: none;"></div>
+
+                    <!-- Download Section -->
+                    <div id="downloadSection" class="download-section" style="display: none;">
+                        <div class="download-header animate__animated animate__fadeInDown">
+                            <h5><i class="bi bi-download"></i> Download Report & Save Results</h5>
+                            <p>Get detailed reports and save your diagnosis for future reference</p>
+                        </div>
+
+                        <div class="download-options">
+                            <div class="download-card animate__animated animate__zoomIn" onclick="downloadDetailedReport()">
+                                <div class="download-icon">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </div>
+                                <div class="download-title">Detailed Report</div>
+                                <div class="download-desc">Complete diagnosis with treatment plan, prevention measures, and expert recommendations</div>
+                            </div>
+
+                            <div class="download-card animate__animated animate__zoomIn" onclick="downloadImageWithResults()">
+                                <div class="download-icon">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div class="download-title">Image + Results</div>
+                                <div class="download-desc">Your plant image with diagnosis overlay and summary information</div>
+                            </div>
+
+                            <div class="download-card animate__animated animate__zoomIn" onclick="downloadPrescription()">
+                                <div class="download-icon">
+                                    <i class="bi bi-prescription2"></i>
+                                </div>
+                                <div class="download-title">Treatment Prescription</div>
+                                <div class="download-desc">Step-by-step treatment guide with dosage and application instructions</div>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions">
+                            <button onclick="saveDiagnosisRecord()" class="btn btn-success btn-download animate__animated animate__bounceIn">
+                                <i class="bi bi-bookmark"></i> Save to Records
+                            </button>
+                            <button onclick="downloadAsJSON()" class="btn btn-secondary btn-download animate__animated animate__bounceIn">
+                                <i class="bi bi-code"></i> Export Data
+                            </button>
+                            <button onclick="shareResults()" class="btn btn-warning btn-download animate__animated animate__bounceIn">
+                                <i class="bi bi-share"></i> Share Results
+                            </button>
+                            <button onclick="printReport()" class="btn btn-primary btn-download animate__animated animate__bounceIn">
+                                <i class="bi bi-printer"></i> Print Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script>
+        // Enhanced Three.js 3D Animation Setup
+        const container = document.getElementById('threejs-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const geometry = new THREE.IcosahedronGeometry(1.8, 3);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0x238636,
+            specular: 0x58a6ff,
+            shininess: 50,
+            wireframe: false,
+            emissive: 0x1a202c,
+            emissiveIntensity: 0.3
+        });
+        const leafMesh = new THREE.Mesh(geometry, material);
+        scene.add(leafMesh);
+
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 1.5, 100);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        const pointLight2 = new THREE.PointLight(0x58a6ff, 1, 100);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+
+        camera.position.z = 5;
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            leafMesh.rotation.x += 0.015;
+            leafMesh.rotation.y += 0.015;
+            leafMesh.scale.setScalar(1 + 0.1 * Math.sin(Date.now() * 0.001));
+            pointLight.position.set(
+                5 * Math.sin(Date.now() * 0.001),
+                5 * Math.cos(Date.now() * 0.001),
+                5
+            );
+            renderer.render(scene, camera);
+        }
+        animate3D();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        let selectedImage = null;
+        let cameraStream = null;
+        let currentDiagnosisData = null;
+        let selectedImageDataURL = null;
+
+        function logout() {
+            fetch('/api/logout', { method: 'POST' })
+                .then(() => window.location.href = '/');
+        }
+
+        function plantSelected() {
+            const plantSelect = document.getElementById('plantSelect');
+            const imageUploadSection = document.getElementById('imageUploadSection');
+            const step2Indicator = document.getElementById('step2-indicator');
+            const selectedPlantInfo = document.getElementById('selectedPlantInfo');
+
+            if (plantSelect.value) {
+                imageUploadSection.style.opacity = '1';
+                imageUploadSection.style.pointerEvents = 'auto';
+                step2Indicator.classList.add('active');
+                document.getElementById('imageInput').disabled = false;
+
+                selectedPlantInfo.innerHTML = `
+                    <i class="bi bi-check-circle text-success"></i>
+                    <strong>Selected Plant:</strong> ${plantSelect.value}
+                    <br><small class="text-muted">Now upload a clear image of the ${plantSelect.value} leaf</small>
+                `;
+                selectedPlantInfo.style.display = 'block';
+            } else {
+                imageUploadSection.style.opacity = '0.5';
+                imageUploadSection.style.pointerEvents = 'none';
+                step2Indicator.classList.remove('active');
+                selectedPlantInfo.style.display = 'none';
+                document.getElementById('imageInput').disabled = true;
+            }
+            updateDetectButton();
+        }
+
+        function switchToUpload() {
+            document.getElementById('uploadBtn').classList.add('active');
+            document.getElementById('cameraBtn').classList.remove('active');
+            document.getElementById('uploadOption').style.display = 'block';
+            document.getElementById('cameraOption').style.display = 'none';
+            stopCamera();
+        }
+
+        function switchToCamera() {
+            document.getElementById('uploadBtn').classList.remove('active');
+            document.getElementById('cameraBtn').classList.add('active');
+            document.getElementById('uploadOption').style.display = 'none';
+            document.getElementById('cameraOption').style.display = 'block';
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedImage = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImageDataURL = e.target.result;
+                    document.getElementById('imagePreview').innerHTML = `
+                        <img src="${e.target.result}" alt="Selected plant image">
+                        <p class="mt-2 text-muted">Image ready for analysis</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+                updateDetectButton();
+            }
+        }
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    cameraStream = stream;
+                    const video = document.getElementById('cameraVideo');
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+
+                    document.getElementById('startCameraBtn').style.display = 'none';
+                    document.getElementById('captureBtn').style.display = 'inline-block';
+                    document.getElementById('stopCameraBtn').style.display = 'inline-block';
+                })
+                .catch(error => {
+                    console.error('Camera error:', error);
+                    alert('Error accessing camera: ' + error.message);
+                });
+        }
+
+        function captureImage() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+
+            selectedImageDataURL = canvas.toDataURL();
+
+            canvas.toBlob(blob => {
+                selectedImage = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+
+                document.getElementById('imagePreview').innerHTML = `
+                    <img src="${selectedImageDataURL}" alt="Captured plant image" style="max-width: 300px; border-radius: 10px;">
+                    <p class="mt-2 text-muted">Image captured and ready for analysis</p>
+                `;
+
+                updateDetectButton();
+            }, 'image/jpeg', 0.8);
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            const video = document.getElementById('cameraVideo');
+            video.style.display = 'none';
+            video.srcObject = null;
+
+            document.getElementById('startCameraBtn').style.display = 'inline-block';
+            document.getElementById('captureBtn').style.display = 'none';
+            document.getElementById('stopCameraBtn').style.display = 'none';
+        }
+
+        function updateDetectButton() {
+            const plantSelected = document.getElementById('plantSelect').value;
+            const imageSelected = selectedImage !== null;
+            const detectBtn = document.getElementById('detectBtn');
+            const step3Indicator = document.getElementById('step3-indicator');
+
+            if (plantSelected && imageSelected) {
+                detectBtn.disabled = false;
+                step3Indicator.classList.add('active');
+            } else {
+                detectBtn.disabled = true;
+                step3Indicator.classList.remove('active');
+            }
+        }
+
+        function detectDisease() {
+            if (!selectedImage) {
+                alert('Please upload or capture an image first');
+                return;
+            }
+
+            const plantName = document.getElementById('plantSelect').value;
+            const language = document.getElementById('languageSelect').value;
+
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const resultDisplay = document.getElementById('resultDisplay');
+            document.getElementById('analyzingPlant').textContent = plantName;
+            loadingSpinner.style.display = 'block';
+            resultDisplay.style.display = 'none';
+            document.getElementById('downloadSection').style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('image', selectedImage);
+            formData.append('plant_name', plantName);
+            formData.append('language', language);
+
+            fetch('/api/detect-disease', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingSpinner.style.display = 'none';
+
+                if (data.success) {
+                    currentDiagnosisData = {
+                        ...data,
+                        plantName,
+                        language,
+                        timestamp: new Date().toISOString(),
+                        imageDataURL: selectedImageDataURL
+                    };
+
+                    displayDiagnosisResults(data);
+                    setTimeout(() => {
+                        document.getElementById('downloadSection').style.display = 'block';
+                        document.getElementById('downloadSection').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }, 1000);
+                } else {
+                    resultDisplay.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Analysis Failed</h5>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                }
+
+                resultDisplay.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Detection error:', error);
+                loadingSpinner.style.display = 'none';
+                resultDisplay.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Network Error</h5>
+                        <p>Failed to connect to the server. Please check your internet connection and try again.</p>
+                    </div>
+                `;
+                resultDisplay.style.display = 'block';
+            });
+        }
+
+        function displayDiagnosisResults(data) {
+            let resultHtml = `
+                <div class="alert alert-success animate__animated animate__fadeIn">
+                    <h5><i class="bi bi-check-circle"></i> Analysis Complete</h5>
+                    <p>Your plant has been successfully analyzed using our advanced AI system.</p>
+                </div>
+            `;
+
+            if (data.method === 'model') {
+                resultHtml += `
+                    <div class="disease-info-section animate__animated animate__fadeInUp">
+                        <div class="section-title">
+                            <i class="bi bi-info-circle"></i> Detection Results
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Plant Type:</strong> ${data.plant_name}</p>
+                                <p><strong>Disease Identified:</strong> ${data.disease_name}</p>
+                                <p><strong>Confidence Level:</strong> ${(data.confidence * 100).toFixed(1)}%</p>
+                                <p><strong>Detection Method:</strong> DenseNet201 AI Model</p>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="treatment-section">
+                                    <div class="section-title">
+                                        <i class="bi bi-heart-pulse"></i> Immediate Actions
+                                    </div>
+                                    <p>Follow the detailed treatment recommendations below to address this condition effectively.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="precaution-section animate__animated animate__fadeInUp">
+                        <div class="section-title">
+                            <i class="bi bi-shield-exclamation"></i> Prevention & Precaution Measures
+                        </div>
+                        <div style="white-space: pre-wrap; line-height: 1.6;">
+                            ${formatDiseaseInfo(data.disease_info, 'precaution')}
+                        </div>
+                    </div>
+
+                    <div class="treatment-section animate__animated animate__fadeInUp">
+                        <div class="section-title">
+                            <i class="bi bi-prescription2"></i> Treatment & Remedies
+                        </div>
+                        <div style="white-space: pre-wrap; line-height: 1.6;">
+                            ${formatDiseaseInfo(data.disease_info, 'treatment')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                let cleanedInfo = data.disease_info;
+                cleanedInfo = cleanedInfo.replace(/Analysis Method:.*?\n/gi, '');
+                cleanedInfo = cleanedInfo.replace(/Advanced Gemini AI Vision\n?/gi, '');
+                cleanedInfo = cleanedInfo.replace(/### \*\*(.*?)\*\*/g, '$1');
+                cleanedInfo = cleanedInfo.replace(/### (.*?)$/gm, '$1');
+                cleanedInfo = cleanedInfo.replace(/\*\*(.*?)\*\*/g, '$1');
+                cleanedInfo = cleanedInfo.replace(/---+/g, '');
+                cleanedInfo = cleanedInfo.replace(/^\s*\n/gm, '');
+
+                resultHtml += `
+                    <div class="disease-info-section animate__animated animate__fadeInUp">
+                        <div class="section-title">
+                            <i class="bi bi-cpu"></i> AI Analysis Results
+                        </div>
+                        <p><strong>Plant Type:</strong> ${data.plant_name}</p>
+
+                        <div class="analysis-content" style="margin-top: 1.5rem;">
+                            ${formatGeminiResponse(cleanedInfo)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('resultDisplay').innerHTML = resultHtml;
+        }
+
+        function formatGeminiResponse(info) {
+            const sections = info.split('\n\n');
+            let formattedHtml = '';
+
+            sections.forEach(section => {
+                const trimmedSection = section.trim();
+                if (!trimmedSection) return;
+
+                if (/^\d+\.\s/.test(trimmedSection)) {
+                    const lines = trimmedSection.split('\n');
+                    const title = lines[0].replace(/^\d+\.\s/, '').replace(/\*\*/g, '');
+                    const content = lines.slice(1).join('\n').trim();
+
+                    if (title.toLowerCase().includes('confirmation') || title.toLowerCase().includes('disease status')) {
+                        formattedHtml += `
+                            <div class="diagnosis-highlight mb-3 p-3 animate__animated animate__fadeIn">
+                                <h6 class="mb-2" style="color: #58a6ff; font-weight: 600;">
+                                    <i class="bi bi-check-circle-fill"></i> ${title}
+                                </h6>
+                                <p class="mb-0" style="font-weight: 500; color: #c9d1d9;">${content}</p>
+                            </div>
+                        `;
+                    } else if (title.toLowerCase().includes('symptoms')) {
+                        formattedHtml += `
+                            <div class="symptoms-section mb-3 p-3 animate__animated animate__fadeIn">
+                                <h6 class="mb-2" style="color: #f1b44c; font-weight: 600;">
+                                    <i class="bi bi-eye-fill"></i> ${title}
+                                </h6>
+                                <div style="white-space: pre-line; color: #c9d1d9;">${content}</div>
+                            </div>
+                        `;
+                    } else if (title.toLowerCase().includes('prevention')) {
+                        formattedHtml += `
+                            <div class="prevention-section mb-3 p-3 animate__animated animate__fadeIn">
+                                <h6 class="mb-2" style="color: #238636; font-weight: 600;">
+                                    <i class="bi bi-shield-check-fill"></i> ${title}
+                                </h6>
+                                <div style="white-space: pre-line; color: #c9d1d9;">${content}</div>
+                            </div>
+                        `;
+                    } else if (title.toLowerCase().includes('treatment')) {
+                        formattedHtml += `
+                            <div class="treatment-section-gemini mb-3 p-3 animate__animated animate__fadeIn">
+                                <h6 class="mb-2" style="color: #f85149; font-weight: 600;">
+                                    <i class="bi bi-heart-pulse-fill"></i> ${title}
+                                </h6>
+                                <div style="white-space: pre-line; color: #c9d1d9;">${content}</div>
+                            </div>
+                        `;
+                    } else {
+                        formattedHtml += `
+                            <div class="info-section mb-3 p-3 animate__animated animate__fadeIn">
+                                <h6 class="mb-2" style="color: #6c757d; font-weight: 600;">
+                                    <i class="bi bi-info-circle-fill"></i> ${title}
+                                </h6>
+                                <div style="white-space: pre-line; color: #c9d1d9;">${content}</div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    formattedHtml += `
+                        <div class="mb-3 p-2 animate__animated animate__fadeIn" style="line-height: 1.6;">
+                            <div style="white-space: pre-line; color: #c9d1d9;">${trimmedSection}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            return formattedHtml;
+        }
+
+        function formatDiseaseInfo(info, section) {
+            const lines = info.split('\n');
+            let sectionContent = [];
+            let inSection = false;
+
+            const sectionKeywords = {
+                'precaution': ['prevention', 'precaution', 'avoid', 'prevent'],
+                'treatment': ['treatment', 'remedy', 'remedies', 'cure', 'medication']
+            };
+
+            for (let line of lines) {
+                const lowerLine = line.toLowerCase();
+                if (sectionKeywords[section].some(keyword => lowerLine.includes(keyword))) {
+                    inSection = true;
+                    sectionContent.push(line);
+                } else if (inSection && line.trim()) {
+                    sectionContent.push(line);
+                } else if (line.trim() === '') {
+                    if (inSection) break;
+                }
+            }
+
+            return sectionContent.length > 0 ? sectionContent.join('\n') : info;
+        }
+
+        function downloadDetailedReport() {
+            if (!currentDiagnosisData) {
+                alert('No diagnosis data available');
+                return;
+            }
+
+            const timestamp = new Date().toLocaleString();
+            const data = currentDiagnosisData;
+
+            let reportContent = `
+PLANTCARE AI - COMPREHENSIVE PLANT DISEASE DIAGNOSIS REPORT
+===========================================================
+
+PATIENT INFORMATION
+-------------------
+Plant Species: ${data.plantName}
+Diagnosis Date: ${timestamp}
+Language: ${data.language}
+Location: [User's Location]
+
+DIAGNOSTIC SUMMARY
+==================`;
+
+            if (data.method === 'model') {
+                reportContent += `
+Primary Diagnosis: ${data.disease_name}
+Confidence Level: ${(data.confidence * 100).toFixed(1)}%
+Detection Method: DenseNet201 Deep Learning Model
+Risk Level: ${data.confidence > 0.8 ? 'High Certainty' : 'Moderate Certainty'}
+
+DETAILED ANALYSIS
+=================
+${data.disease_info}`;
+            } else {
+                let cleanedInfo = data.disease_info;
+                cleanedInfo = cleanedInfo.replace(/Analysis Method:.*?\n/gi, '');
+                cleanedInfo = cleanedInfo.replace(/Advanced Gemini AI Vision\n?/gi, '');
+                cleanedInfo = cleanedInfo.replace(/### \*\*(.*?)\*\*/g, '$1');
+                cleanedInfo = cleanedInfo.replace(/### (.*?)$/gm, '$1');
+                cleanedInfo = cleanedInfo.replace(/\*\*(.*?)\*\*/g, '$1');
+                cleanedInfo = cleanedInfo.replace(/---+/g, '');
+
+                reportContent += `
+Detection Method: Advanced AI Vision Analysis
+Assessment: Comprehensive visual and contextual analysis
+
+DETAILED FINDINGS & RECOMMENDATIONS
+===================================
+${cleanedInfo}`;
+            }
+
+            reportContent += `
+
+RECOMMENDED ACTION PLAN
+=======================
+1. IMMEDIATE STEPS (Next 24-48 hours):
+   - Isolate affected plant if possible
+   - Remove severely affected leaves/parts
+   - Apply initial treatment as recommended above
+
+2. SHORT-TERM MANAGEMENT (1-2 weeks):
+   - Monitor plant progress daily
+   - Continue treatment regimen
+   - Document changes with photos
+
+3. LONG-TERM PREVENTION (Ongoing):
+   - Implement prevention measures
+   - Regular monitoring schedule
+   - Maintain optimal growing conditions
+
+FOLLOW-UP RECOMMENDATIONS
+========================
+- Re-evaluate plant condition in 7-14 days
+- Repeat diagnosis if symptoms persist or worsen
+- Consult with local agricultural extension if needed
+- Keep record of treatment effectiveness
+
+TECHNICAL INFORMATION
+=====================
+Analysis Timestamp: ${data.timestamp}
+Image Quality: Original resolution maintained
+AI Model: ${data.method === 'model' ? 'DenseNet201 v2.1' : 'Advanced AI Vision'}
+Processing Time: <2 seconds
+Supported Languages: English, Hindi, Kannada, Tamil, Telugu, Marathi, Bengali
+
+DISCLAIMER & IMPORTANT NOTES
+=============================
+• This diagnosis is provided by AI analysis for guidance purposes
+• For severe conditions, consult local agricultural experts
+• Treatment effectiveness may vary based on environmental conditions
+• Keep this report for your agricultural records
+• Contact support if you have questions about the diagnosis
+
+EMERGENCY CONTACTS
+==================
+PlantCare AI Support: support@plantcare-ai.com
+Local Agricultural Extension: [Contact your local office]
+Emergency Plant Pathologist: [Consult local directory]
+
+--
+Generated by PlantCare AI - Your Smart Farming Companion
+Report ID: ${Date.now()}
+© 2025 PlantCare AI. All rights reserved.
+
+For technical support or questions about this diagnosis,
+visit: https://yourwebsite.com/support
+            `.trim();
+
+            downloadFile(reportContent, `Detailed_Plant_Diagnosis_${data.plantName}_${new Date().toISOString().split('T')[0]}.txt`, 'text/plain');
+        }
+
+        function downloadImageWithResults() {
+            if (!currentDiagnosisData || !selectedImageDataURL) {
+                alert('No image or diagnosis data available');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = () => {
+                canvas.width = Math.max(img.width, 800);
+                canvas.height = img.height + 350;
+
+                ctx.fillStyle = '#0d1117';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const x = (canvas.width - img.width) / 2;
+                ctx.drawImage(img, x, 0);
+
+                ctx.fillStyle = '#161b22';
+                ctx.fillRect(0, img.height, canvas.width, 350);
+
+                ctx.fillStyle = '#238636';
+                ctx.font = 'bold 28px Poppins';
+                ctx.textAlign = 'center';
+                ctx.fillText('🌱 PlantCare AI Diagnosis', canvas.width / 2, img.height + 50);
+
+                ctx.fillStyle = '#c9d1d9';
+                ctx.font = '20px Poppins';
+                ctx.textAlign = 'left';
+                let y = img.height + 100;
+
+                ctx.fillText(`Plant: ${currentDiagnosisData.plantName}`, 50, y); y += 40;
+
+                if (currentDiagnosisData.method === 'model') {
+                    ctx.fillText(`Disease: ${currentDiagnosisData.disease_name}`, 50, y); y += 40;
+                    ctx.fillText(`Confidence: ${(currentDiagnosisData.confidence * 100).toFixed(1)}%`, 50, y); y += 40;
+                    ctx.fillText('Method: Deep-Learning Model', 50, y);
+                } else {
+                    ctx.fillText('Analysis: AI Vision System', 50, y);
+                }
+                y += 50;
+
+                ctx.font = '16px Poppins';
+                ctx.fillStyle = '#58a6ff';
+                ctx.textAlign = 'center';
+                ctx.fillText('Download the full report for detailed recommendations', canvas.width / 2, y);
+
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Plant_Diagnosis_${currentDiagnosisData.plantName}_${new Date().toISOString().split('T')[0]}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                });
+            };
+
+            img.src = selectedImageDataURL;
+        }
+
+        function downloadPrescription() {
+            if (!currentDiagnosisData) {
+                alert('No diagnosis data available');
+                return;
+            }
+
+            const timestamp = new Date().toLocaleString();
+            const data = currentDiagnosisData;
+
+            let prescriptionContent = `
+PLANTCARE AI - TREATMENT PRESCRIPTION
+=====================================
+
+PATIENT: ${data.plantName}
+DATE: ${timestamp}
+PRESCRIBED BY: PlantCare AI System
+LANGUAGE: ${data.language}
+
+DIAGNOSIS
+---------`;
+
+            if (data.method === 'model') {
+                prescriptionContent += `
+Condition: ${data.disease_name}
+Confidence: ${(data.confidence * 100).toFixed(1)}%
+Severity: ${data.confidence > 0.8 ? 'Confirmed' : 'Probable'}`;
+            } else {
+                prescriptionContent += `
+Assessment: Comprehensive AI Analysis
+Status: Detailed recommendations provided`;
+            }
+
+            prescriptionContent += `
+
+TREATMENT PROTOCOL
+==================
+
+STEP 1: IMMEDIATE ACTION (Today)
+□ Isolate affected plant from healthy plants
+□ Remove severely damaged leaves/parts
+□ Clean tools with disinfectant between plants
+□ Take photos to monitor progress
+
+STEP 2: PRIMARY TREATMENT (Days 1-7)
+□ Apply recommended treatment as per analysis
+□ Follow dosage instructions carefully
+□ Monitor plant daily for changes
+□ Maintain optimal watering schedule
+
+STEP 3: ONGOING CARE (Week 2+)
+□ Continue treatment regimen
+□ Gradually reduce treatment frequency
+□ Implement prevention measures
+□ Document recovery progress
+
+DOSAGE & APPLICATION INSTRUCTIONS
+==================================
+⚠️  IMPORTANT: Follow product label instructions
+⚠️  Test on small area before full application
+⚠️  Apply during cooler parts of day
+⚠️  Wear protective equipment when handling chemicals
+
+MONITORING SCHEDULE
+===================
+Daily: Visual inspection for improvement/worsening
+Weekly: Photo documentation of progress
+Bi-weekly: Treatment effectiveness assessment
+Monthly: Overall plant health evaluation
+
+WARNING SIGNS TO WATCH FOR
+===========================
+🚨 Rapid spread to other plants
+🚨 Worsening of symptoms after 7 days
+🚨 New symptoms appearing
+🚨 Plant showing signs of severe stress
+
+If any warning signs appear, discontinue treatment and consult
+local agricultural extension services immediately.
+
+PREVENTION FOR FUTURE
+=====================
+□ Maintain proper plant spacing
+□ Ensure adequate air circulation
+□ Avoid overhead watering when possible
+□ Regular inspection of all plants
+□ Quarantine new plants before introducing
+
+FOLLOW-UP
+=========
+Recommended re-evaluation: 14 days from today
+Questions: preetham171977@gmail.com
+
+--
+This prescription is generated by AI analysis and should be used
+as guidance only. For severe conditions, consult professional
+agricultural advisors.
+
+Prescription ID: ${Date.now()}
+Generated: ${timestamp}
+            `.trim();
+
+            downloadFile(prescriptionContent, `Treatment_Prescription_${data.plantName}_${new Date().toISOString().split('T')[0]}.txt`, 'text/plain');
+        }
+
+        function saveDiagnosisRecord() {
+            if (!currentDiagnosisData) {
+                alert('No diagnosis data available to save');
+                return;
+            }
+
+            let savedRecords = JSON.parse(localStorage.getItem('plantcare_diagnosis_records') || '[]');
+            savedRecords.push({
+                ...currentDiagnosisData,
+                type: 'disease_diagnosis',
+                id: Date.now()
+            });
+            localStorage.setItem('plantcare_diagnosis_records', JSON.stringify(savedRecords));
+
+            fetch('/api/save-diagnosis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentDiagnosisData)
+            }).catch(error => console.log('Server save failed, data saved locally'));
+
+            alert('Diagnosis record saved successfully! You can access it from your saved records in the dashboard.');
+        }
+
+        function downloadAsJSON() {
+            if (!currentDiagnosisData) {
+                alert('No data available');
+                return;
+            }
+
+            const jsonData = JSON.stringify(currentDiagnosisData, null, 2);
+            downloadFile(jsonData, `diagnosis_data_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+        }
+
+        function shareResults() {
+            if (!currentDiagnosisData) {
+                alert('No data to share');
+                return;
+            }
+
+            const shareText = `🌱 Plant Diagnosis Results from PlantCare AI
+
+Plant: ${currentDiagnosisData.plantName}
+${currentDiagnosisData.method === 'model' ?
+    `Disease: ${currentDiagnosisData.disease_name}\nConfidence: ${(currentDiagnosisData.confidence * 100).toFixed(1)}%` :
+    'Status: AI Analysis completed'}
+
+Analyzed by PlantCare AI - Smart Agriculture Technology
+Get your plants diagnosed at: ${window.location.origin}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Plant Diagnosis Results - PlantCare AI',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('Results copied to clipboard! You can now paste and share.');
+                });
+            }
+        }
+
+        function printReport() {
+            if (!currentDiagnosisData) {
+                alert('No data to print');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Plant Diagnosis Report - PlantCare AI</title>
+                    <style>
+                        body { font-family: Poppins, sans-serif; margin: 30px; line-height: 1.6; background: #0d1117; color: #c9d1d9; }
+                        .header { text-align: center; border-bottom: 3px solid #238636; padding-bottom: 20px; margin-bottom: 20px; }
+                        .logo { color: #238636; font-size: 28px; font-weight: bold; }
+                        .section { margin-bottom: 30px; padding: 20px; border-left: 5px solid #238636; background: #161b22; }
+                        .highlight { background: #21262d; padding: 15px; border-radius: 8px; }
+                        @media print { .no-print { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="logo">🌱 PlantCare AI</div>
+                        <h1>Plant Disease Diagnosis Report</h1>
+                        <p>Generated on ${new Date().toLocaleString()}</p>
+                    </div>
+
+                    <div class="section">
+                        <h2>Patient Information</h2>
+                        <p><strong>Plant:</strong> ${currentDiagnosisData.plantName}</p>
+                        <p><strong>Language:</strong> ${currentDiagnosisData.language}</p>
+                        <p><strong>Analysis Date:</strong> ${new Date(currentDiagnosisData.timestamp).toLocaleString()}</p>
+                    </div>
+
+                    ${currentDiagnosisData.method === 'model' ? `
+                    <div class="section">
+                        <h2>Diagnosis Results</h2>
+                        <div class="highlight">
+                            <p><strong>Disease Identified:</strong> ${currentDiagnosisData.disease_name}</p>
+                            <p><strong>Confidence Level:</strong> ${(currentDiagnosisData.confidence * 100).toFixed(1)}%</p>
+                            <p><strong>Detection Method:</strong> DenseNet201 AI Model</p>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="section">
+                        <h2>Treatment Recommendations</h2>
+                        <div style="white-space: pre-wrap;">${currentDiagnosisData.disease_info}</div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Important Notes</h2>
+                        <p>• This diagnosis is provided by AI analysis for guidance purposes</p>
+                        <p>• For severe conditions, consult local agricultural experts</p>
+                        <p>• Monitor plant progress and repeat analysis if symptoms persist</p>
+                    </div>
+
+                    <div class="no-print" style="text-align: center; margin-top: 30px;">
+                        <button onclick="window.print()">Print Report</button>
+                        <button onclick="window.close()">Close</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function downloadFile(content, fileName, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
